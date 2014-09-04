@@ -32,8 +32,11 @@ class ChapterDownloader(threading.Thread):
                 if exception.errno != errno.EEXIST:
                     raise
             #start writing
-            with open(os.path.join(finalpath, str(img[0])+".jpg"), "wb") as file:
-                file.write(image.text.encode("UTF-8"))
+            with open(os.path.join(finalpath, str(img[0])+".png"), "wb") as file:
+                for block in image.iter_content(1024):
+                    if not block:
+                        break
+                    file.write(block)
 
 foo = ChapterDownloader("5064306fc092253769022d52", "36", "/home/andrea/mangaedenDownloads")
 foo.start()
