@@ -13,9 +13,10 @@ class ChapterDownloader(threading.Thread):
         self.path = path
 
     def run(self):
+        print "Chapter %s started" % self.chapterName
         self.getImageList()
         self.downloadImages()
-        print "Chapter " + self.chapterName + " Done\n"
+        print "Chapter " + self.chapterName + " Done"
 
     def getImageList(self):
         self.imageList = requests.get("http://www.mangaeden.com/api/chapter/" + self.chapterId)
@@ -66,14 +67,14 @@ if len(sys.argv) < 4:
 chapters = sys.argv[2].split("-")
 mangaList = requests.get("http://www.mangaeden.com/api/list/1/")
 mangaList = json.loads(mangaList.text)
-mangaIndex = findManga(sys.argv[1], mangaList.text)
+mangaIndex = findManga(sys.argv[1], mangaList)
 chapterList = requests.get("https://www.mangaeden.com/api/manga/" + mangaIndex)
 chapterList = json.loads(chapterList.text)
-chapters = range(chapters[0], chapters[1]+1)
+chapters = range(int(chapters[0]), int(chapters[1])+1)
 download, names = findChapterCodesNames(chapterList, chapters)
 chapterDownloadList = []
 for i in range(len(download)):
-    chapterDownloadList = ChapterDownloader(download[i], names[i], sys.argv[3])
-    chapterDownloadList.start()
+    chapterDownloadList.append(ChapterDownloader(download[i], names[i], sys.argv[3]))
+    chapterDownloadList[i].start()
 for c in chapterDownloadList:
     c.join()
