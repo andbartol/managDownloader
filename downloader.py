@@ -25,10 +25,12 @@ class ChapterDownloader(threading.Thread):
 
     def downloadImages(self):
         for img in reversed(self.imageList):
-            try:
-                image = requests.get("http://cdn.mangaeden.com/mangasimg/" + img[1])
-            except HTTPConnectionPool as exception:
-                pass
+            while True:
+                try:
+                    image = requests.get("http://cdn.mangaeden.com/mangasimg/" + img[1])
+                except HTTPConnectionPool as exception:
+                    continue
+                break
             finalpath = os.path.join(self.path, self.chapterName)
             #create the directory
             try:
