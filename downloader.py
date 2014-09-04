@@ -34,7 +34,8 @@ class ChapterDownloader(threading.Thread):
                 if exception.errno != errno.EEXIST:
                     raise
             #start writing
-            with open(os.path.join(finalpath, str(img[0])+".png"), "wb") as file:
+            extension = img[1].split(".")[-1]
+            with open(os.path.join(finalpath, str(img[0])+"." + extension), "wb") as file:
                 for block in image.iter_content(1024):
                     if not block:
                         break
@@ -74,7 +75,7 @@ chapters = range(int(chapters[0]), int(chapters[1])+1)
 download, names = findChapterCodesNames(chapterList, chapters)
 chapterDownloadList = []
 for i in range(len(download)):
-    chapterDownloadList.append(ChapterDownloader(download[i], names[i], sys.argv[3]))
+    chapterDownloadList.append(ChapterDownloader(download[i], str(chapters[i]) + " - " + names[i], sys.argv[3]))
     chapterDownloadList[i].start()
 for c in chapterDownloadList:
     c.join()
