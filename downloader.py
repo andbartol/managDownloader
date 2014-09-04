@@ -24,7 +24,7 @@ class ChapterDownloader(threading.Thread):
         self.imageList = self.imageList["images"]
 
     def downloadImages(self):
-        for img in self.imageList:
+        for img in reversed(self.imageList):
             image = requests.get("http://cdn.mangaeden.com/mangasimg/" + img[1])
             finalpath = os.path.join(self.path, self.chapterName)
             #create the directory
