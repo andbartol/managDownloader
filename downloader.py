@@ -2,6 +2,7 @@ import errno
 import json
 import os
 import requests
+import sys
 import threading
 
 class ChapterDownloader(threading.Thread):
@@ -38,6 +39,41 @@ class ChapterDownloader(threading.Thread):
                         break
                     file.write(block)
 
-foo = ChapterDownloader("5064306fc092253769022d52", "36", "/home/andrea/mangaedenDownloads")
-foo.start()
-foo.join()
+def findManga(mangaName, mangaList):
+    for manga in mangaList["manga"]:
+        if manga["a"] == mangaName:
+            return manga["i"]
+    raise Exception("Manga not found")
+
+def findChapterCodesNames(chapterList, findList):
+    finalList = []
+    nameList = []
+    for chapterNumber in findList:
+        for num in chapterList["chapters"]:
+            if num[0] == chapterNumber:
+                finalList.append(num[3])
+                nameList.append(num[2])
+                break
+        else:
+            raise Exception("Chapter not find")
+    return finalList, nameList
+
+#Program start
+if len(sys.argv) < 4:
+    print "Usage: %s mangaName chapterStart-chapterEnd path" % sys.argv[0]
+    exit();
+
+chapters = sys.argv[2].split("-")
+mangaList = requests.get("http://www.mangaeden.com/api/list/1/")
+mangaList = json.loads(mangaList.text)
+mangaIndex = findManga(sys.argv[1], mangaList.text)
+chapterList = requests.get("https://www.mangaeden.com/api/manga/" + mangaIndex)
+chapterList = json.loads(chapterList.text)
+chapters = range(chapters[0], chapters[1]+1)
+download, names = findChapterCodesNames(chapterList, chapters)
+chapterDownloadList = []
+for i in range(len(download)):
+    chapterDownloadList = ChapterDownloader(download[i], names[i], sys.argv[3])
+    chapterDownloadList.start()
+for c in chapterDownloadList:
+    c.join()
