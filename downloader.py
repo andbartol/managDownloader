@@ -65,18 +65,32 @@ def findChapterCodesNames(chapterList, findList):
             raise Exception("Chapter not find")
     return finalList, nameList
 
+def chapterParser(chapters):
+    returnlist = []
+    chapters = chapters.split(',')
+    for i in range(len(chapters)):
+        chapters[i] = chapters[i].split('-')
+    for c in chapters:
+        if len(c) == 1:
+            returnlist.append(int(c[0]))
+        else:
+            for i in range(int(c[0]), int(c[1])+1):
+                returnlist.append(i)
+    return returnlist
+
 #Program start
 if len(sys.argv) < 4:
     print "Usage: %s mangaName chapterStart-chapterEnd path" % sys.argv[0]
     exit();
 
-chapters = sys.argv[2].split("-")
+#chapters = sys.argv[2].split("-")
 mangaList = requests.get("http://www.mangaeden.com/api/list/1/")
 mangaList = json.loads(mangaList.text)
 mangaIndex = findManga(sys.argv[1], mangaList)
 chapterList = requests.get("https://www.mangaeden.com/api/manga/" + mangaIndex)
 chapterList = json.loads(chapterList.text)
-chapters = range(int(chapters[0]), int(chapters[1])+1)
+#chapters = range(int(chapters[0]), int(chapters[1])+1)
+chapters = chapterParser(sys.argv[2])
 download, names = findChapterCodesNames(chapterList, chapters)
 chapterDownloadList = []
 for i in range(len(download)):
