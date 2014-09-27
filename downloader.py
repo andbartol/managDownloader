@@ -64,7 +64,7 @@ def findChapterCodesNames(chapterList, findList):
                 nameList.append(num[2])
                 break
         else:
-            raise Exception("Chapter not find")
+            raise Exception("Chapter not found")
     return finalList, nameList
 
 def chapterParser(chapters):
@@ -86,14 +86,26 @@ if len(sys.argv) < 5:
     exit();
 
 #chapters = sys.argv[2].split("-")
+print "Downloading Manga List"
 mangaList = requests.get("http://www.mangaeden.com/api/list/1/")
+print "Manga List Downloaded"
 mangaList = json.loads(mangaList.text)
-mangaIndex = findManga(sys.argv[1], mangaList)
+try:
+    mangaIndex = findManga(sys.argv[1], mangaList)
+except Exception as e:
+    print e.message
+    quit()
+print "Downloading chapter list"
 chapterList = requests.get("https://www.mangaeden.com/api/manga/" + mangaIndex)
+print "Chapter list downloaded"
 chapterList = json.loads(chapterList.text)
 #chapters = range(int(chapters[0]), int(chapters[1])+1)
 chapters = chapterParser(sys.argv[2])
-download, names = findChapterCodesNames(chapterList, chapters)
+try:
+    download, names = findChapterCodesNames(chapterList, chapters)
+except Exception as e:
+    print e.message
+    quit()
 chapterDownloadList = []
 sim_down = int(sys.argv[4])
 semaphore = threading.Semaphore(sim_down)
