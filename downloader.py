@@ -13,10 +13,12 @@ class ChapterDownloader(threading.Thread):
         self.path = path
 
     def run(self):
+        semaphore.acquire()
         print "Chapter %s started" % self.chapterName
         self.getImageList()
         self.downloadImages()
         print "Chapter " + self.chapterName + " Done"
+        semaphore.release()
 
     def getImageList(self):
         self.imageList = requests.get("http://www.mangaeden.com/api/chapter/" + self.chapterId)
@@ -94,15 +96,7 @@ chapters = chapterParser(sys.argv[2])
 download, names = findChapterCodesNames(chapterList, chapters)
 chapterDownloadList = []
 sim_down = int(sys.argv[4])
+semaphore = threading.Semaphore(sim_down)
 for i in range(len(download)):
     chapterDownloadList.append(ChapterDownloader(download[i], str(chapters[i]) + " - " + names[i], sys.argv[3]))
-#Start Downloading
-j = 0
-while j < len(chapterDownloadList):
-    if sim_down > (len(chapterDownloadList) - j): #Quelli rimanenti
-        sim_down = len(chapterDownloadList) - j
-    for i in range(sim_down):
-        chapterDownloadList[i+j].start()
-    for i in range(sim_down):
-        chapterDownloadList[i+j].join()
-    j += sim_down
+    chapterDownloadList[i].start()
