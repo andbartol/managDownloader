@@ -28,7 +28,7 @@ class ChapterDownloader(threading.Thread):
             while True:
                 try:
                     image = requests.get("http://cdn.mangaeden.com/mangasimg/" + img[1])
-                except HTTPConnectionPool as exception:
+                except Exception as exception:
                     continue
                 break
             finalpath = os.path.join(self.path, self.chapterName)
