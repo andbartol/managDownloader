@@ -79,8 +79,8 @@ def chapterParser(chapters):
     return returnlist
 
 #Program start
-if len(sys.argv) < 4:
-    print "Usage: %s mangaName chapterStart-chapterEnd path" % sys.argv[0]
+if len(sys.argv) < 5:
+    print "Usage: %s mangaName chapterStart-chapterEnd path download_simultanei" % sys.argv[0]
     exit();
 
 #chapters = sys.argv[2].split("-")
@@ -93,8 +93,16 @@ chapterList = json.loads(chapterList.text)
 chapters = chapterParser(sys.argv[2])
 download, names = findChapterCodesNames(chapterList, chapters)
 chapterDownloadList = []
+sim_down = int(sys.argv[4])
 for i in range(len(download)):
     chapterDownloadList.append(ChapterDownloader(download[i], str(chapters[i]) + " - " + names[i], sys.argv[3]))
-    chapterDownloadList[i].start()
-for c in chapterDownloadList:
-    c.join()
+#Start Downloading
+j = 0
+while j < len(chapterDownloadList):
+    if sim_down > (len(chapterDownloadList) - j): #Quelli rimanenti
+        sim_down = len(chapterDownloadList) - j
+    for i in range(sim_down):
+        chapterDownloadList[i+j].start()
+    for i in range(sim_down):
+        chapterDownloadList[i+j].join()
+    j += sim_down
